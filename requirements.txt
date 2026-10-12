@@ -1,0 +1,11 @@
+numpy>=1.26,<3
+pandas>=2.2,<3
+scikit-learn>=1.5,<2
+joblib>=1.4,<2
+streamlit>=1.40,<2
+fastapi>=0.115,<1
+uvicorn>=0.32,<1
+openai>=1.65,<3
+pytest>=8,<10
+httpx>=0.28,<1
+certifi>=2025.1
