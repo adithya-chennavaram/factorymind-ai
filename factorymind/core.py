@@ -113,9 +113,11 @@ def investigate(case: dict, *, config=None, telemetry=None) -> str:
         count = getattr(usage, field, None)
         telemetry[name] = count if isinstance(count, int) and count >= 0 else None
     returned_model = getattr(completion, "model", None)
+    # Preserve the actual server-reported model even when validation fails.
+    # The response still falls back safely, and this metadata does not contain API keys.
+    telemetry["response_model"] = returned_model
     if not config.matches_model(returned_model):
         raise ModelMismatchError("Provider returned a different model")
-    telemetry["response_model"] = returned_model
     telemetry["finish_reason"] = completion.choices[0].finish_reason if completion.choices else None
     if not completion.choices or completion.choices[0].finish_reason != "stop":
         raise ValueError("Incomplete provider response")
@@ -145,12 +147,14 @@ def run_investigation(case: dict, *, config=None) -> dict:
     except Exception as exc:
         text, mode, failure = safe_fallback(case, exc), "fallback", error_category(exc)
     elapsed = (perf_counter() - start) * 1000
-    served_by = ("ollama" if config.provider == "ollama" else "vllm") if mode == "llm" else "rule_based"
+    served_by = ({"ollama": "ollama", "amd_vllm": "vllm", "amd_tokenfactory": "amd_tokenfactory"}[config.provider]) if mode == "llm" else "rule_based"
     # A fallback never inherits the attempted server's hardware attribution.
     hardware = hardware_status(config, telemetry["response_model"]) if mode == "llm" else {
         "status": "not_applicable", "hardware_verified": False, "gpu_details": None,
         "note": "Rule-based fallback; no AI output used."}
-    label = {"ollama": "Local Ollama", "vllm": "vLLM · GPU unverified", "rule_based": "Rule-based fallback"}[served_by]
+    label = {"ollama": "Local Ollama", "vllm": "vLLM · GPU unverified",
+             "amd_tokenfactory": "AMD Token Factory · AMD-hosted API (documented)",
+             "rule_based": "Rule-based fallback"}[served_by]
     if served_by == "vllm" and hardware["status"] == "operator_evidence_matched":
         label = "vLLM · matching operator AMD evidence"
     tokens = telemetry["generated_tokens"]

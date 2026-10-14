@@ -153,4 +153,4 @@ with evaluation_tab:
     st.dataframe(pd.DataFrame({label: report["per_class"][label] for label in labels}).T, width="stretch")
     st.caption("The served model is the original random-split training model, not a refit on all cycles. Scores are uncalibrated. No costs, downtime savings or industrial efficacy are claimed.")
 st.divider()
-st.caption("FactoryMind AI · Human-approved inspection support · AMD inference pending approved cloud access · Built with disclosed AI coding assistance")
+st.caption("FactoryMind AI · Human-approved inspection support · AMD Token Factory inference available when configured (local connection required) · Built with disclosed AI coding assistance")

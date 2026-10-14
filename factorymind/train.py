@@ -74,16 +74,26 @@ def train(df: pd.DataFrame, artifacts_dir: str | Path, *, source="unspecified / 
     cases.to_csv(artifacts_dir / "predictions.csv", index=False)
     if blocked:
         out_of_fold = np.zeros(len(df), dtype=int)
+        oof_p_optimal = np.zeros(len(df), dtype=float)
+        oof_confidence = np.zeros(len(df), dtype=float)
+        oof_fold = np.zeros(len(df), dtype=int)
         folds = []
         for fold, (tr, te) in enumerate(blocked_splits(len(df)), 1):
             candidate = make_model().fit(X.iloc[tr], y.iloc[tr])
+            probabilities = candidate.predict_proba(X.iloc[te])
+            optimum_column = list(candidate.classes_).index(100)
+            oof_p_optimal[te] = probabilities[:, optimum_column]
+            oof_confidence[te] = probabilities.max(axis=1)
+            oof_fold[te] = fold
             out_of_fold[te] = candidate.predict(X.iloc[te])
             folds.append({"fold": fold, "first_test_cycle": int(df.iloc[te[0]].cycle_id),
                           "last_test_cycle": int(df.iloc[te[-1]].cycle_id), "train_samples": len(tr),
                           "train_classes": sorted(y.iloc[tr].unique().tolist()), **evaluate(y.iloc[te], out_of_fold[te])})
         metrics["blocked"] = {**evaluate(y, out_of_fold), "folds": folds, "purge_cycles": 10,
             "note": "Five contiguous folds with 10-cycle boundary purge; pooled out-of-fold predictions. Uses both earlier and later training blocks, not forecasting or independent-rig validation."}
-        pd.DataFrame({"cycle_id": df.cycle_id, "actual": y, "predicted": out_of_fold}).to_csv(artifacts_dir / "blocked_predictions.csv", index=False)
+        pd.DataFrame({"cycle_id": df.cycle_id, "actual": y, "predicted": out_of_fold,
+                      "fold": oof_fold, "p_optimal_uncalibrated": oof_p_optimal,
+                      "max_confidence_uncalibrated": oof_confidence}).to_csv(artifacts_dir / "blocked_predictions.csv", index=False)
     joblib.dump(model, artifacts_dir / "valve_model.joblib")
     metrics["model_sha256"] = hashlib.sha256((artifacts_dir / "valve_model.joblib").read_bytes()).hexdigest()
     (artifacts_dir / "metrics.json").write_text(json.dumps(metrics, indent=2))

@@ -1,3 +1,5 @@
+> **Current ACT III update (October 13):** The official team API key is now available. The managed Token Factory adapter is implemented as `LLM_PROVIDER=amd_tokenfactory`. API URL, usage and key-handling instructions: `docs/AMD_TOKEN_FACTORY_ACTIII.md`. Do not request MI300X credits, provision GPU instances, or use historical `amd_vllm` settings for the main hackathon track. The owner's live AMD smoke test is still pending. Code hygiene, honest attribution and human-approval rules remain in force.
+
 # FactoryMind AI — Instructions for autonomous coding agents
 
 > **Current owner update — Token Factory:** The main Intelligent Industry track uses organizer-issued AMD-hosted model API access at https://notebooks.amd.com/tokenfactory. The registered email is not recognized; organizer escalation is pending. Self-hosted GPU deployment is superseded for this track. Retain the instructions below as historical/optional preparation only; do not provision or deploy. Token Factory integration is not yet implemented. Follow `docs/HANDOFF.md` (or `HANDOFF.md` from this directory) for the current next steps.

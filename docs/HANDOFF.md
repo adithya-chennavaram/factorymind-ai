@@ -1,3 +1,9 @@
+# October 13 additive handoff — AMD Token Factory integration prepared
+
+The owner obtained the ACT III team key. The official manual documents `https://developer.amd.com.cn/radeon/api/v1`, OpenAI-compatible chat, a `GET /models` API and free shared team quotas. A dedicated `amd_tokenfactory` provider is now implemented with offline tests. See `docs/AMD_TOKEN_FACTORY_ACTIII.md`. **Live AMD inference is not yet verified** because credentials have deliberately not been shared. The old checkpoint below remains a historical record. The Green-Light Audit probability baseline is added to training and evaluated after local retraining; no new reliability-improvement claim is supported yet.
+
+---
+
 # FactoryMind AI — final checkpoint
 
 Checkpoint date: 2026-10-12. Track: AMD ACT III Intelligent Industry. Team: FactoryMind AI. Independent of SentaDQ. Stop after this checkpoint; no scheduled continuation.

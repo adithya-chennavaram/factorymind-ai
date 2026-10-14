@@ -5,6 +5,23 @@ import openai
 import pytest
 from factorymind.core import predict_cycle, investigate, investigation_prompt
 
+@pytest.fixture(autouse=True)
+def ollama_environment_for_legacy_tests(monkeypatch):
+    """These fixtures simulate an Ollama response regardless of the user's shell."""
+    for key, value in {
+        "LLM_PROVIDER": "ollama",
+        "LLM_BASE_URL": "http://localhost:11434/v1",
+        "LLM_MODEL": "llama3.2",
+        "LLM_API_KEY": "ollama",
+        "LLM_TIMEOUT_SECONDS": "60",
+        "LLM_DISABLE_THINKING": "0",
+        "LLM_MAX_TOKENS": "300",
+        "LLM_TEMPERATURE": "0",
+        "LLM_TOP_P": "1",
+    }.items():
+        monkeypatch.setenv(key, value)
+
+
 @pytest.fixture
 def case(trained):
     return predict_cycle(*trained, 1)

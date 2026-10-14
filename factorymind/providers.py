@@ -71,12 +71,16 @@ class ProviderConfig:
     top_p: float = 1
 
     def __post_init__(self):
-        if self.provider not in {"ollama", "amd_vllm"}:
-            raise ProviderConfigError("LLM_PROVIDER must be ollama or amd_vllm")
+        if self.provider not in {"ollama", "amd_vllm", "amd_tokenfactory"}:
+            raise ProviderConfigError("LLM_PROVIDER must be ollama, amd_vllm or amd_tokenfactory")
         u = urlsplit(self.base_url)
         if (u.scheme not in {"http", "https"} or not u.hostname or u.username or u.password
-                or u.query or u.fragment or u.path.rstrip("/") != "/v1"):
-            raise ProviderConfigError("Use an HTTP(S) /v1 URL without embedded credentials, queries or fragments")
+                or u.query or u.fragment or u.path.rstrip("/") not in {"/v1", "/radeon/api/v1"}):
+            raise ProviderConfigError("Use an HTTP(S) API v1 URL without credentials, queries or fragments")
+        if self.provider == "amd_tokenfactory" and self.base_url.rstrip("/") != "https://developer.amd.com.cn/radeon/api/v1":
+            raise ProviderConfigError("AMD Token Factory requires the official documented HTTPS API address")
+        if self.provider != "amd_tokenfactory" and u.path.rstrip("/") != "/v1":
+            raise ProviderConfigError("Ollama and self-hosted vLLM require a /v1 API URL")
         if u.scheme == "http" and not loopback(u.hostname):
             raise ProviderConfigError("Remote endpoints require HTTPS; HTTP is allowed only over local loopback/tunnel")
         if self.provider == "ollama" and not loopback(u.hostname):
@@ -86,6 +90,10 @@ class ProviderConfig:
         if self.provider == "amd_vllm" and (len(self.api_key.strip()) < 16 or self.api_key.lower() in {
                 "local-only-placeholder", "your-api-key-here"}):
             raise ProviderConfigError("AMD vLLM requires a private API key of at least 16 characters")
+        if self.provider == "amd_tokenfactory" and not re.fullmatch(r"rc-[0-9a-fA-F]{48}", self.api_key):
+            raise ProviderConfigError("AMD Token Factory requires a privately supplied rc- team API key")
+        if self.provider == "amd_tokenfactory" and self.disable_thinking:
+            raise ProviderConfigError("Self-hosted disable_thinking setting is unsupported by Token Factory")
         if not math.isfinite(self.timeout_seconds) or not 1 <= self.timeout_seconds <= 120:
             raise ProviderConfigError("Timeout must be between 1 and 120 seconds")
         if not math.isfinite(self.temperature) or not 0 <= self.temperature <= 2:
@@ -100,8 +108,11 @@ class ProviderConfig:
     @classmethod
     def from_env(cls):
         provider = os.getenv("LLM_PROVIDER", "ollama")
-        base = os.getenv("LLM_BASE_URL", "http://localhost:11434/v1" if provider == "ollama" else "")
-        model = os.getenv("LLM_MODEL", "llama3.2" if provider == "ollama" else "")
+        default_base = {"ollama": "http://localhost:11434/v1",
+                        "amd_tokenfactory": "https://developer.amd.com.cn/radeon/api/v1"}
+        default_model = {"ollama": "llama3.2", "amd_tokenfactory": "DeepSeek-V4-Flash"}
+        base = os.getenv("LLM_BASE_URL", default_base.get(provider, ""))
+        model = os.getenv("LLM_MODEL", default_model.get(provider, ""))
         key = os.getenv("LLM_API_KEY", "ollama" if provider == "ollama" else "")
         try:
             return cls(provider, base.rstrip("/"), model, key,
@@ -136,7 +147,14 @@ class ProviderConfig:
         if self.provider == "ollama":
             aliases.add(self.model.removesuffix(":latest"))
             aliases.add(self.model.removesuffix(":latest") + ":latest")
-        return returned in aliases
+        if self.provider == "amd_tokenfactory" and self.model == "DeepSeek-V4-Flash":
+            # The official Token Factory manual lists this exact weight identifier
+            # for the DeepSeek-V4-Flash catalog model. Do not accept arbitrary names.
+            aliases.add("V4-Flash-0731")
+            # Observed ACT III managed gateway response. Match the entire
+            # reported identifier; never accept arbitrary self-dploy/* models.
+            aliases.add("self-dploy/DeepSeek-V4-Flash")
+        return isinstance(returned, str) and returned in aliases
 
     def client(self):
         from openai import OpenAI
@@ -150,6 +168,9 @@ def hardware_status(config: ProviderConfig, returned_model: str | None = None) -
     result = {"status": "not_applicable" if config.provider == "ollama" else "unverified",
               "gpu_details": None, "hardware_verified": False,
               "note": "Client responses cannot attest GPU execution."}
+    if config.provider == "amd_tokenfactory":
+        result.update(status="managed_amd_api_documented",
+                      note="AMD Token Factory documentation states shared models run on AMD GPUs; this request does not include independently verified GPU hardware details.")
     if config.provider != "amd_vllm" or not config.hardware_evidence_path:
         return result
     try:
@@ -192,6 +213,21 @@ def check_connection(config: ProviderConfig) -> dict:
         with httpx.Client(timeout=httpx.Timeout(min(config.timeout_seconds, 10), connect=5),
                           trust_env=False, follow_redirects=False) as client:
             headers = {"Authorization": "Bearer " + config.api_key}
+            if config.provider == "amd_tokenfactory":
+                # Managed service: no /health route or credential-negative probes.
+                # GET /models is the documented lightweight authenticated preflight.
+                models = client.get(config.base_url + "/models", headers=headers)
+                result["checks"]["authenticated_models"] = models.status_code == 200
+                if models.status_code == 200:
+                    ids = [m.get("id") for m in models.json().get("data", [])]
+                    result["checks"]["model_available"] = any(config.matches_model(m) for m in ids)
+                else:
+                    result["checks"]["model_available"] = False
+                    result["failure"] = "authentication" if models.status_code in (401, 403) else ("rate_limited" if models.status_code == 429 else "provider_http_error")
+                result["ready"] = all(result["checks"].values())
+                if not result["ready"] and result["failure"] is None:
+                    result["failure"] = "model_not_available"
+                return result
             if config.provider == "amd_vllm":
                 # An open /health is allowed by vLLM; /v1/models must enforce authentication.
                 url = config.base_url + "/models"
