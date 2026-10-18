@@ -7,7 +7,8 @@ This document contains setup and reproducibility commands moved out of the judge
 Tested locally on Apple Silicon with Python 3.13. The lock file captures the verified dependency environment.
 
 ```bash
-cd /Users/adithyachennavaram/Downloads/factorymind-ai
+git clone https://github.com/adithya-chennavaram/factorymind-ai.git
+cd factorymind-ai
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements-lock.txt
@@ -41,7 +42,7 @@ For a fresh hosted filesystem, set `FACTORYMIND_AUTO_SETUP=1` in the hosting sec
 In a second terminal:
 
 ```bash
-cd /Users/adithyachennavaram/Downloads/factorymind-ai
+cd factorymind-ai
 source .venv/bin/activate
 python -m uvicorn factorymind.api:app --host 127.0.0.1 --port 8001
 ```

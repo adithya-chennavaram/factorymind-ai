@@ -186,7 +186,8 @@ The audit run completed with **106 passed in 2.38 seconds and one upstream Starl
 Local startup requires Python 3.13-compatible dependencies from `requirements-lock.txt`, the UCI download and model training. The exact commands are:
 
 ```bash
-cd /Users/adithyachennavaram/Downloads/factorymind-ai
+git clone https://github.com/adithya-chennavaram/factorymind-ai.git
+cd factorymind-ai
 source .venv/bin/activate
 python -m pip install -r requirements-lock.txt
 python -m scripts.download_data
