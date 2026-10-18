@@ -1,6 +1,6 @@
 # Verification evidence and remaining milestones
 
-> **Current owner update — Token Factory:** The main Intelligent Industry track uses organizer-issued AMD-hosted model API access at https://notebooks.amd.com/tokenfactory. The registered email is not recognized; organizer escalation is pending. Self-hosted GPU deployment is superseded for this track. Retain the instructions below as historical/optional preparation only; do not provision or deploy. Token Factory integration is not yet implemented. Follow `docs/HANDOFF.md` (or `HANDOFF.md` from this directory) for the current next steps.
+> **Current track:** ACT III uses the managed AMD Token Factory API. See [the Token Factory guide](AMD_TOKEN_FACTORY_ACTIII.md). Self-hosted GPU instructions and October 12 status below are historical; do not provision cloud resources for the main track. A real Token Factory evidence hearing and inspection approval were recorded in the October 13 demo (local time). This is managed-service evidence, not independent physical-GPU attestation.
 
 
 ## AMD readiness update — October 12, 2026

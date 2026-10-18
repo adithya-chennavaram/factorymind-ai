@@ -17,3 +17,16 @@ artifacts/*
 
 # Host inventory and runtime evidence must be reviewed before publication.
 evidence/
+
+# Local agent/session notes; keep copies on disk, outside the published source.
+/AGENTS.md
+/docs/CODEX_MASTER_PROMPT.md
+/docs/HANDOFF.md
+/docs/24_HOUR_CHECKLIST.md
+
+# Local demo production outputs.
+/FactoryMind_Video_Production/
+/FactoryMind_ACTIII_*
+*.m4a
+*.mp4
+*.webm

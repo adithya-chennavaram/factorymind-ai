@@ -2,7 +2,7 @@
 
 A working local prototype for the AMD ACT III Intelligent Industry project. An operator selects a recorded hydraulic test-rig cycle, sees a real classifier prediction and sensor traces, requests an Ollama-assisted investigation, and explicitly approves or rejects an inspection review. No actuator commands exist.
 
-**Local verification: October 12, 2026.** Real UCI data downloaded and validated; model trained; FastAPI, Streamlit, local Ollama and SQLite review flow exercised. **October 13 code update:** AMD ACT III Token Factory managed-provider adapter and offline tests added; the owner has obtained the team key, but **live AMD inference has not yet been tested**. This project is separate from SentaDQ. Confirm event eligibility and AI-assistance disclosure with organizers.
+**Verified locally:** UCI data, classifier evaluation, FastAPI, Streamlit, Ollama and SQLite review flow. The recorded October 13 demo also exercised AMD Token Factory (`self-dploy/DeepSeek-V4-Flash`), bounded evidence selection and inspection approval #3. The narrated demo was completed October 17. This is managed-service inference evidence, not independent attestation of the underlying GPU. The project is independent of other projects; confirm event eligibility and AI-assistance disclosure with organizers.
 
 ## Run locally
 
@@ -49,9 +49,9 @@ python scripts/smoke_api.py
 
 The probe saves authenticated health/model checks and a real investigation to `artifacts/provider_probe.json`. `--require-amd-evidence` fails on a local Ollama connection and on missing/stale remote hardware evidence. The API smoke test requires the API to be running and adds clearly marked **automated test** approval/rejection records to the local audit. It writes `artifacts/local_smoke.json`.
 
-## AMD Token Factory — ready for owner's authenticated live test
+## AMD Token Factory — managed inference
 
-The ACT III organizer-issued team manual specifies the AMD-managed API base URL `https://developer.amd.com.cn/radeon/api/v1` (distinct from the `/tokenfactory` sign-in website). The owner has obtained a team key. A dedicated `amd_tokenfactory` provider supports the documented OpenAI-compatible chat, selected model ID, JSON output, a lightweight authenticated `/models` health check, secret-safe error handling and honest provider attribution. New mocked tests pass. This is a **managed model service**, not a self-hosted MI300X instance. No live AMD call has yet been made in this environment because the secret key stays on the owner's Mac.
+The ACT III organizer-issued team manual specifies the AMD-managed API base URL `https://developer.amd.com.cn/radeon/api/v1` (distinct from the `/tokenfactory` sign-in website). The owner has obtained a team key. A dedicated `amd_tokenfactory` provider supports the documented OpenAI-compatible chat, selected model ID, JSON output, a lightweight authenticated `/models` health check, secret-safe error handling and honest provider attribution. New mocked tests pass. This is a **managed model service**, not a self-hosted MI300X instance. A genuine Token Factory request and accepted bounded response were captured in the local demo. The API key remains private; no cloud instance was provisioned.
 
 See **[AMD Token Factory ACT III quickstart](docs/AMD_TOKEN_FACTORY_ACTIII.md)**. Historical `amd_vllm`/ROCm instructions are preserved for reference only, not required for this main-track project. The optional Green-Light Audit baseline is described in [docs/GREEN_LIGHT_BASELINE.md](docs/GREEN_LIGHT_BASELINE.md) and requires regenerating blocked predictions to add out-of-fold probabilities.
 
@@ -85,11 +85,11 @@ The database is a local demonstration log, not a tamper-evident or authenticated
 
 ## Tests and reproducibility
 
-Prior owner checkpoint: **79 tests passed** (local Mac). New October 13 changes add the Token Factory provider and Green-Light baseline tests: **35 targeted offline tests passed** in this restricted environment. The entire suite could not be rerun here because the local sandbox lacks `openai` and `streamlit`, and package installation was unavailable. Run `pytest -q` on the owner's complete Mac environment before submission.
+Latest local suite run, October 17, 2026: **113 tests passed**, with one upstream Starlette/httpx deprecation warning. Run `python -m pytest -q` to reproduce.
 
 `pytest -q` covers extraction/label alignment, malformed data, split leakage/purge, prediction, API validation/readiness, provider timeouts, bounded response validation, SQLite decisions and the Streamlit form flow. Unit fixtures are synthetic and never reported as real evaluation. The UI integration test uses real local artifacts and skips on a fresh checkout until training completes. `requirements-lock.txt` pins the environment; `requirements.txt` lists allowed dependency ranges.
 
-Raw files, trained models, environment secrets and local reviews are ignored. The final checkpoint initializes a local-only Git repository; see `docs/HANDOFF.md` for the branch and checkpoint reference. No push or publication is authorized. Keep these files out of Git. Never load an untrusted joblib artifact.
+Raw files, trained models, environment secrets, local reviews, agent/session notes and video production outputs are excluded from Git. The repository contains application source, tests, configuration templates and reproducibility documentation. Never load an untrusted joblib artifact.
 
 ## Data attribution, licenses and disclosure
 
@@ -101,4 +101,4 @@ The starter was generated with ChatGPT assistance. Codex expanded the implementa
 
 ### AMD ACT III Token Factory (managed API)
 
-The official ACT III team API is **not** the historical self-hosted vLLM deployment. See [`docs/AMD_TOKEN_FACTORY_ACTIII.md`](docs/AMD_TOKEN_FACTORY_ACTIII.md) for secure environment setup, model selection and the first live probe. The code now accepts `LLM_PROVIDER=amd_tokenfactory` with documented HTTPS API URL and a privately exported `rc-` team key; live inference must still be verified by the owner.
+The official ACT III team API is **not** the historical self-hosted vLLM deployment. See [`docs/AMD_TOKEN_FACTORY_ACTIII.md`](docs/AMD_TOKEN_FACTORY_ACTIII.md) for secure environment setup, model selection and the first live probe. The code now accepts `LLM_PROVIDER=amd_tokenfactory` with documented HTTPS API URL and a privately exported `rc-` team key; the recorded demo exercised this managed provider successfully.
