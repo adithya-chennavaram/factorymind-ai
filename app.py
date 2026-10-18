@@ -9,7 +9,7 @@ from factorymind.core import ROOT, load_assets, predict_cycle, run_investigation
 from factorymind.data import SENSOR_INFO, TARGET_LABELS, read_cycle_samples
 from factorymind.reviews import save_review, list_reviews
 
-st.set_page_config(page_title="FactoryMind AI · Valve investigation", page_icon="🏭", layout="wide")
+st.set_page_config(page_title="FactoryMind AI · Model Trust Lab", page_icon="🏭", layout="wide")
 st.markdown("""<style>
 .block-container {padding-top:2rem; max-width:1400px}
 [data-testid="stMetric"] {background:#142233;border:1px solid #293c50;border-radius:12px;padding:18px}
@@ -29,7 +29,7 @@ try:
     metrics = model.factorymind_metadata_
     predictions = pd.read_csv(ROOT / "artifacts/predictions.csv")
 except (FileNotFoundError, OSError, ValueError) as exc:
-    st.title("FactoryMind AI")
+    st.title("FactoryMind AI — Model Trust Lab")
     st.warning(f"Local assets are not ready: {type(exc).__name__}")
     st.code("python scripts/download_data.py\npython -m factorymind.train", language="bash")
     st.stop()
@@ -40,7 +40,7 @@ collections = {"Held-out · non-optimal predictions": held[held.predicted != 100
                "Held-out · model errors": held[held.predicted != held.actual],
                "All held-out cycles": held, "All cycles (includes training)": predictions}
 with st.sidebar:
-    st.markdown("## FACTORYMIND\nCondition investigation")
+    st.markdown("## FACTORYMIND AI\nModel Trust Lab")
     st.caption("LOCAL PROTOTYPE · HUMAN REVIEW")
     collection = st.selectbox("Case collection", list(collections))
     choices = collections[collection].cycle_id.astype(int).tolist()
@@ -153,4 +153,4 @@ with evaluation_tab:
     st.dataframe(pd.DataFrame({label: report["per_class"][label] for label in labels}).T, width="stretch")
     st.caption("The served model is the original random-split training model, not a refit on all cycles. Scores are uncalibrated. No costs, downtime savings or industrial efficacy are claimed.")
 st.divider()
-st.caption("FactoryMind AI · Human-approved inspection support · AMD Token Factory inference available when configured (local connection required) · Built with disclosed AI coding assistance")
+st.caption("FactoryMind AI — Model Trust Lab · Human-approved inspection support · AMD Token Factory inference available when configured (local connection required) · Built with disclosed AI coding assistance")

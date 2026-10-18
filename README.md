@@ -1,6 +1,6 @@
-# FactoryMind AI — valve-condition investigation
+# FactoryMind AI — Model Trust Lab
 
-A working local prototype for the AMD ACT III Intelligent Industry project. An operator selects a recorded hydraulic test-rig cycle, sees a real classifier prediction and sensor traces, requests an Ollama-assisted investigation, and explicitly approves or rejects an inspection review. No actuator commands exist.
+FactoryMind AI — Model Trust Lab audits industrial model predictions before an operator relies on an “all clear.” It combines blocked-validation analysis, false-green review, hypothetical sensor-gain stress tests, an AMD Token Factory evidence hearing, and a human-approved Decision Passport. The local prototype uses recorded UCI hydraulic test-rig cycles; it does not control equipment or claim real-factory safety. The main investigation dashboard also supports local Ollama.
 
 **Verified locally:** UCI data, classifier evaluation, FastAPI, Streamlit, Ollama and SQLite review flow. The recorded October 13 demo also exercised AMD Token Factory (`self-dploy/DeepSeek-V4-Flash`), bounded evidence selection and inspection approval #3. The narrated demo was completed October 17. This is managed-service inference evidence, not independent attestation of the underlying GPU. The project is independent of other projects; confirm event eligibility and AI-assistance disclosure with organizers.
 

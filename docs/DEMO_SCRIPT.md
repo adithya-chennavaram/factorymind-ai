@@ -1,4 +1,4 @@
-# FactoryMind AI — local demonstration
+# FactoryMind AI — Model Trust Lab demonstration
 
 Run Streamlit and FastAPI using the README. Keep Ollama available for the live investigation. All demonstrations below use the retained random-split model and held-out cases.
 

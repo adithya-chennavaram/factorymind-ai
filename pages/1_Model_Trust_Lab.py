@@ -23,9 +23,9 @@ METRICS = ROOT / 'artifacts/metrics.json'
 REVIEW_DB = os.getenv('FACTORYMIND_REVIEW_DB', str(ROOT / 'data/reviews.sqlite3'))
 LABELS = {73: 'Near failure', 80: 'Severe lag', 90: 'Small lag', 100: 'Optimal switching'}
 
-st.set_page_config(page_title='FactoryMind · Model Trust Lab', page_icon='🧪', layout='wide')
+st.set_page_config(page_title='FactoryMind AI · Model Trust Lab', page_icon='🧪', layout='wide')
 st.title('🧪 Model Trust Lab')
-st.caption('FactoryMind AI · The green light is a prediction, not a guarantee')
+st.caption('FactoryMind AI — Model Trust Lab · The green light is a prediction, not a guarantee')
 st.info('This page audits **blocked out-of-fold** predictions from experimental UCI hydraulic cycles. It does not replay the random-split model from the main app or claim prospective factory safety.')
 
 @st.cache_data

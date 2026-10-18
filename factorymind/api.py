@@ -9,7 +9,7 @@ from .data import SENSOR_INFO, read_cycle_samples
 from .reviews import save_review, list_reviews
 from .providers import ProviderConfig, ProviderConfigError, check_connection
 
-app = FastAPI(title="FactoryMind AI", version="0.2.0")
+app = FastAPI(title="FactoryMind AI — Model Trust Lab", version="0.2.0")
 REVIEW_PATH = ROOT / "data/reviews.sqlite3"
 
 
