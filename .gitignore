@@ -14,6 +14,7 @@ data/*.sqlite3*
 artifacts/*
 !artifacts/.gitkeep
 *.pyc
+.factorymind_bootstrap.lock
 
 # Host inventory and runtime evidence must be reviewed before publication.
 evidence/

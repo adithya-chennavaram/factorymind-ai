@@ -16,10 +16,16 @@ from factorymind.trust_lab import (
     request_amd_hearing, select_for_review, trust_evidence_packet,
 )
 from factorymind.trust_audit import save_trust_review, list_trust_reviews, get_trust_review
-from factorymind.bootstrap import ensure_assets
+from factorymind.bootstrap import ensure_assets, BootstrapError
+from factorymind.quota import InvestigationQuota, quota_message
 
 ROOT = Path(__file__).resolve().parents[1]
-ensure_assets(ROOT)
+try:
+    ensure_assets(ROOT)
+except BootstrapError as exc:
+    st.error('The public-data/model initialization did not finish.')
+    st.caption(f'Initialization detail: {type(exc).__name__}. Retry after hosted startup completes, or run the local setup commands.')
+    st.stop()
 SCORES = ROOT / 'artifacts/green_challenge_scored.csv'
 METRICS = ROOT / 'artifacts/metrics.json'
 REVIEW_DB = os.getenv('FACTORYMIND_REVIEW_DB', str(ROOT / 'data/reviews.sqlite3'))
@@ -29,6 +35,16 @@ st.set_page_config(page_title='FactoryMind AI · Model Trust Lab', page_icon='�
 st.title('🧪 Model Trust Lab')
 st.caption('FactoryMind AI — Model Trust Lab · The green light is a prediction, not a guarantee')
 st.info('This page audits **blocked out-of-fold** predictions from experimental UCI hydraulic cycles. It does not replay the random-split model from the main app or claim prospective factory safety.')
+with st.expander('Judge demo · 2–3 minutes', expanded=True):
+    st.markdown('''
+1. Start with the **98.01% random** versus **82.86% blocked** accuracy cards.
+2. Set the review budget to **20%** and compare confidence-only with stress-only; there are **260 false-green** cases and confidence-only flags **136** in this retrospective audit.
+3. Choose cycle **507** to see simulated switches, or **2053** to see a stable-looking but wrong green prediction.
+4. Ask the AMD Evidence Hearing to select bounded evidence and human checks, then approve or reject an inspection review.
+5. Download the Decision Passport and reveal the held-out label only after making the decision.
+
+The sensor-gain experiment is hypothetical. Confidence-only is the evaluated baseline; stress stability does not prove correctness.
+''')
 
 @st.cache_data
 def scores():
@@ -126,13 +142,20 @@ with right:
 st.subheader('4 · AMD evidence hearing')
 st.caption('Optional live Token Factory call. Dataset ground truth is excluded from the prompt; the AI may only choose bounded evidence and human-review checks.')
 if st.button('Ask AMD to prioritize evidence for this case', type='primary'):
-    with st.spinner('Requesting bounded AMD investigation…'):
-        try:
-            report = request_amd_hearing(payload)
-            st.session_state['trust_hearing'] = {'cycle': cycle, 'budget': budget, 'scores_sha256': scores_sha256, 'report': report}
-        except Exception as exc:
-            st.session_state.pop('trust_hearing', None)
-            st.error(f'AMD hearing unavailable ({type(exc).__name__}). No generated findings were accepted.')
+    decision = InvestigationQuota.from_env().attempt(st.session_state)
+    if not decision.allowed:
+        st.warning(quota_message(decision))
+    else:
+        with st.spinner('Requesting bounded AMD investigation…'):
+            try:
+                report = request_amd_hearing(payload)
+                st.session_state['trust_hearing'] = {'cycle': cycle, 'budget': budget, 'scores_sha256': scores_sha256, 'report': report}
+            except Exception as exc:
+                st.session_state.pop('trust_hearing', None)
+                if '429' in str(exc):
+                    st.warning('AMD Token Factory is temporarily rate-limited. Continue reviewing the local evidence; no generated findings were accepted.')
+                else:
+                    st.error(f'AMD hearing unavailable ({type(exc).__name__}). No generated findings were accepted.')
 hearing = st.session_state.get('trust_hearing')
 valid_hearing = (hearing and hearing.get('cycle') == cycle and hearing.get('budget') == budget
                  and hearing.get('scores_sha256') == scores_sha256)

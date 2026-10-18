@@ -1,6 +1,6 @@
 # FactoryMind AI — Model Trust Lab
 
-FactoryMind AI — Model Trust Lab audits industrial model predictions before an operator relies on an “all clear.” It combines blocked-validation analysis, false-green review, hypothetical sensor-gain stress tests, an AMD Token Factory evidence hearing, and a human-approved Decision Passport. The local prototype uses recorded UCI hydraulic test-rig cycles; it does not control equipment or claim real-factory safety.
+FactoryMind AI — Model Trust Lab audits industrial model predictions before an operator relies on an “all clear.” It combines blocked-validation analysis, false-green review, hypothetical sensor-gain stress tests, an AMD Token Factory evidence hearing, and a human-approved Decision Passport. The application uses recorded UCI hydraulic test-rig cycles; it does not control equipment or claim real-factory safety.
 
 **Verified locally:** UCI data, classifier evaluation, FastAPI, Streamlit and SQLite review flow. The recorded October 13 demo also exercised AMD Token Factory (`self-dploy/DeepSeek-V4-Flash`), bounded evidence selection and inspection approval #3. The narrated demo was completed October 17. This is managed-service inference evidence, not independent attestation of the underlying GPU. The project is independent of other projects; confirm event eligibility and AI-assistance disclosure with organizers.
 
@@ -8,11 +8,16 @@ FactoryMind AI — Model Trust Lab audits industrial model predictions before an
 
 **Submission title:** FactoryMind AI — Model Trust Lab · **Track:** Intelligent Industry
 
+## Try the Live Demo
+
+Open the [hosted Streamlit application](https://factorymind-ai-eht5zkagrajhz6m7dza5kv.streamlit.app/). Select **Model Trust Lab** in the sidebar. The code supports anonymous judge use, but the latest read-only check of this URL redirected to Streamlit authentication; confirm the app's sharing setting before distributing the link. The hosted instance initializes public UCI data and ignored model/evaluation artifacts on first start. If AMD quota is unavailable, the prediction, charts, audit metrics and rule-based review remain usable.
+
 - [Watch/download the narrated demo (2:55)](https://github.com/adithya-chennavaram/factorymind-ai/releases/download/act-iii-submission/FactoryMind_ACTIII_demo.mp4)
 - [Pitch slides (PDF)](https://github.com/adithya-chennavaram/factorymind-ai/releases/download/act-iii-submission/FactoryMind_ACTIII_Pitch.pdf) · [Editable PowerPoint](https://github.com/adithya-chennavaram/factorymind-ai/releases/download/act-iii-submission/FactoryMind_ACTIII_Pitch.pptx)
 - [Submission cover](https://github.com/adithya-chennavaram/factorymind-ai/releases/download/act-iii-submission/FactoryMind_Cover.png)
+- [AMD ACT III submission page](https://lablab.ai/ai-hackathons/amd-developer-hackathon-act-iii/fcksociety/factorymind-ai)
 
-The recording shows blocked-validation errors, simulated sensor-gain checks, an AMD evidence hearing, and a human-approved Decision Passport. Your own API key is required for live AMD inference. There is currently **no hosted interactive deployment**; reproduce the application locally with the commands below. Release assets contain the final presentation and demo, while raw data, trained models, credentials and local audit databases remain excluded.
+The recording shows blocked-validation errors, simulated sensor-gain checks, an AMD evidence hearing, and a human-approved Decision Passport. Release assets contain the final presentation and demo, while raw data, trained models, credentials and local audit databases remain excluded. The live application uses a private Streamlit secret for managed AMD requests; never put that key in source control or a client-side URL.
 
 ## Run locally
 
@@ -51,9 +56,9 @@ python scripts/probe_llm.py --cycle 213
 
 This command performs authenticated model discovery and one real investigation using team quota. Local probe outputs remain ignored. [Benchmark instructions](docs/BENCHMARKS.md) describe optional measured inference runs; no new inference benchmark was run during cleanup.
 
-## Optional Streamlit Cloud deployment
+## Hosted deployment
 
-The repository intentionally excludes the 73 MB UCI archive and trained artifacts. In Streamlit Cloud, add the secret `FACTORYMIND_AUTO_SETUP=1` so the first app start downloads the official UCI files and trains the documented model into the ephemeral app filesystem. Add `LLM_API_KEY` as a second secret; keep the AMD key out of source control. The app remains usable with a rule-based investigation fallback when the key is absent. This setup performs public-data download and model training at first start and may take several minutes.
+The repository intentionally excludes the 73 MB UCI archive and trained artifacts. The deployed Streamlit app uses the secret `FACTORYMIND_AUTO_SETUP=1`; its first startup downloads the official UCI files, trains the documented model and creates the ignored Trust Lab artifacts in ephemeral storage. Bootstrap is guarded against concurrent initialization and reports a clear retry message on failure. The AMD key is stored only as a hosted secret. A short session/process request cap protects the shared demonstration quota; these limits are process-local and reset when the service restarts. No paid infrastructure is created by this repository.
 
 ## Reproduce the Model Trust Lab demo
 
@@ -65,7 +70,7 @@ python -m scripts.evaluate_green_challenge
 python -m streamlit run app.py --server.address 127.0.0.1 --server.port 8501
 ```
 
-Open **Model Trust Lab** in the sidebar. Compare cycles **2053** (stable but wrong) and **507** (26/50 simulated class switches) at a 20% review budget. Both are retrospective examples. Configure the AMD provider using the Token Factory guide before requesting an evidence hearing. After an accepted response, explicitly approve or reject an inspection review and download its Decision Passport. Review IDs depend on the local database; no pre-existing decision is required. Generated datasets, model artifacts and review databases remain local and ignored.
+Open **Model Trust Lab** in the sidebar. Compare cycles **2053** (stable but wrong) and **507** (26/50 simulated class switches) at a 20% review budget. Both are retrospective examples. Configure the AMD provider using the [Token Factory guide](docs/AMD_TOKEN_FACTORY_ACTIII.md) before requesting an evidence hearing. After an accepted response, explicitly approve or reject an inspection review and download its Decision Passport. Review IDs depend on the local database; no pre-existing decision is required. Generated datasets, model artifacts and review databases remain local and ignored. See the [judge walkthrough](docs/JUDGE_DEMO_GUIDE.md) for the shortest path through the demonstration.
 
 ## Actual model evaluation
 
@@ -90,6 +95,7 @@ The database is a local demonstration log, not a tamper-evident or authenticated
 - [Demo script](docs/DEMO_SCRIPT.md)
 - [Judging evidence and blockers](docs/JUDGING_EVIDENCE.md)
 - [AMD Token Factory setup](docs/AMD_TOKEN_FACTORY_ACTIII.md)
+- [Complete implementation handoff](docs/COMPLETE_IMPLEMENTATION_HANDOFF.md)
 
 ## API
 
@@ -97,7 +103,7 @@ The database is a local demonstration log, not a tamper-evident or authenticated
 
 ## Tests and reproducibility
 
-Latest local suite run, October 17, 2026: **102 tests passed**, with one upstream Starlette/httpx deprecation warning. Legacy host-deployment tests were removed with that unused feature; active provider, grounding, approval and UI tests remain. Run `python -m pytest -q` to reproduce.
+Latest local suite run, October 18, 2026: **106 tests passed**, with one upstream Starlette/httpx deprecation warning. Active provider, grounding, approval, UI, bootstrap and quota-control tests remain. Run `python -m pytest -q` to reproduce.
 
 `pytest -q` covers extraction/label alignment, malformed data, split leakage/purge, prediction, API validation/readiness, provider timeouts, bounded response validation, SQLite decisions and the Streamlit form flow. Unit fixtures are synthetic and never reported as real evaluation. The UI integration test uses real local artifacts and skips on a fresh checkout until training completes. `requirements-lock.txt` pins the environment; `requirements.txt` lists allowed dependency ranges.
 

@@ -8,5 +8,4 @@ font = "sans serif"
 [browser]
 gatherUsageStats = false
 [server]
-address = "127.0.0.1"
 headless = true

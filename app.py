@@ -6,9 +6,10 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from factorymind.core import ROOT, load_assets, predict_cycle, run_investigation
-from factorymind.bootstrap import ensure_assets
+from factorymind.bootstrap import ensure_assets, BootstrapError
 from factorymind.data import SENSOR_INFO, TARGET_LABELS, read_cycle_samples
 from factorymind.reviews import save_review, list_reviews
+from factorymind.quota import InvestigationQuota, quota_message
 
 st.set_page_config(page_title="FactoryMind AI · Model Trust Lab", page_icon="🏭", layout="wide")
 st.markdown("""<style>
@@ -30,9 +31,10 @@ try:
     model, features = assets()
     metrics = model.factorymind_metadata_
     predictions = pd.read_csv(ROOT / "artifacts/predictions.csv")
-except (FileNotFoundError, OSError, ValueError) as exc:
+except (FileNotFoundError, OSError, ValueError, BootstrapError) as exc:
     st.title("FactoryMind AI — Model Trust Lab")
-    st.warning(f"Local assets are not ready: {type(exc).__name__}")
+    st.error("The public-data/model initialization did not finish.")
+    st.caption(f"Initialization detail: {type(exc).__name__}. Retry after the hosted startup completes, or run the local commands below.")
     st.code("python scripts/download_data.py\npython -m factorymind.train", language="bash")
     st.stop()
 
@@ -60,7 +62,7 @@ with st.sidebar:
 case = predict_cycle(model, features, int(cycle_id))
 st.caption(f"VALVE CONDITION / CYCLE {cycle_id:04d} / {case['evaluation_split'].replace('_', ' ').upper()}")
 st.title("From sensor evidence to human decision")
-st.write("Inspect a model prediction, investigate recorded signals, and decide whether to request an inspection.")
+st.write("A green machine-health prediction is not a guarantee. Inspect the evidence, investigate the bounded facts, and decide whether to request an inspection.")
 a, b, c = st.columns([2, 1, 1])
 a.metric("Predicted valve condition", case["predicted_valve_condition"])
 b.metric("Uncalibrated model score", f"{case['model_confidence_uncalibrated']:.1%}")
@@ -101,8 +103,13 @@ with sensor_tab:
     st.subheader("AI investigation")
     st.caption("The LLM selects a review focus and safe checks. Responses are validated against a bounded schema; measurements come directly from the case.")
     if st.button("Investigate selected cycle", type="primary"):
-        with st.spinner("Requesting and validating investigation…"):
-            st.session_state["investigation"] = run_investigation(case)
+        quota = InvestigationQuota.from_env()
+        decision = quota.attempt(st.session_state)
+        if not decision.allowed:
+            st.warning(quota_message(decision))
+        else:
+            with st.spinner("Requesting and validating investigation…"):
+                st.session_state["investigation"] = run_investigation(case)
     stored = st.session_state.get("investigation")
     if stored and "served_by" not in stored:
         st.session_state.pop("investigation", None)
@@ -114,6 +121,8 @@ with sensor_tab:
             st.caption(stored['hardware']['note'])
         else:
             st.warning(f"Rule-based fallback · {stored['latency_ms'] / 1000:.2f} s · No AI output used")
+        if stored.get("failure") == "rate_limited":
+            st.warning("AMD Token Factory returned HTTP 429. Wait for the shared quota window, or continue with the local evidence and rule-based review.")
         st.caption(f"Request endpoint ID: {stored['attempted_provider'].get('endpoint_id', 'unavailable')} · Failure: {stored['failure'] or 'none'}")
         st.markdown(stored["investigation"])
         st.download_button("Download investigation evidence", json.dumps(stored, indent=2), file_name=f"cycle_{cycle_id}_investigation.json", mime="application/json")
