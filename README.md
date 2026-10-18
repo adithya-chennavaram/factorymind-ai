@@ -9,7 +9,7 @@ A working local prototype for the AMD ACT III Intelligent Industry project. An o
 Tested on Apple Silicon with Python 3.13. The lock file captures this verified environment.
 
 ```bash
-cd /Users/adithyachennavaram/Downloads/factorymind-ai
+cd factorymind-ai
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements-lock.txt
@@ -22,7 +22,7 @@ streamlit run app.py
 Open [the operator demo](http://127.0.0.1:8501). In another terminal:
 
 ```bash
-cd /Users/adithyachennavaram/Downloads/factorymind-ai
+cd factorymind-ai
 source .venv/bin/activate
 uvicorn factorymind.api:app --host 127.0.0.1 --port 8001
 ```
@@ -54,6 +54,18 @@ The probe saves authenticated health/model checks and a real investigation to `a
 The ACT III organizer-issued team manual specifies the AMD-managed API base URL `https://developer.amd.com.cn/radeon/api/v1` (distinct from the `/tokenfactory` sign-in website). The owner has obtained a team key. A dedicated `amd_tokenfactory` provider supports the documented OpenAI-compatible chat, selected model ID, JSON output, a lightweight authenticated `/models` health check, secret-safe error handling and honest provider attribution. New mocked tests pass. This is a **managed model service**, not a self-hosted MI300X instance. A genuine Token Factory request and accepted bounded response were captured in the local demo. The API key remains private; no cloud instance was provisioned.
 
 See **[AMD Token Factory ACT III quickstart](docs/AMD_TOKEN_FACTORY_ACTIII.md)**. Historical `amd_vllm`/ROCm instructions are preserved for reference only, not required for this main-track project. The optional Green-Light Audit baseline is described in [docs/GREEN_LIGHT_BASELINE.md](docs/GREEN_LIGHT_BASELINE.md) and requires regenerating blocked predictions to add out-of-fold probabilities.
+
+## Reproduce the Model Trust Lab demo
+
+The main dashboard and the Model Trust Lab use different model evaluations. After downloading the UCI data and running `python -m factorymind.train` above, generate the blocked-review and simulated-gain artifacts locally:
+
+```bash
+python -m scripts.evaluate_green_review
+python -m scripts.evaluate_green_challenge
+python -m streamlit run app.py --server.address 127.0.0.1 --server.port 8501
+```
+
+Open **Model Trust Lab** in the sidebar. Compare cycles **2053** (stable but wrong) and **507** (26/50 simulated class switches) at a 20% review budget. Both are retrospective examples. Configure the AMD provider using the Token Factory guide before requesting an evidence hearing. After an accepted response, explicitly approve or reject an inspection review and download its Decision Passport. Review IDs depend on the local database; no pre-existing decision is required. Generated datasets, model artifacts and review databases remain local and ignored.
 
 ## Actual model evaluation
 
