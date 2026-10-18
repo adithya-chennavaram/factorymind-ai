@@ -51,6 +51,10 @@ python scripts/probe_llm.py --cycle 213
 
 This command performs authenticated model discovery and one real investigation using team quota. Local probe outputs remain ignored. [Benchmark instructions](docs/BENCHMARKS.md) describe optional measured inference runs; no new inference benchmark was run during cleanup.
 
+## Optional Streamlit Cloud deployment
+
+The repository intentionally excludes the 73 MB UCI archive and trained artifacts. In Streamlit Cloud, add the secret `FACTORYMIND_AUTO_SETUP=1` so the first app start downloads the official UCI files and trains the documented model into the ephemeral app filesystem. Add `LLM_API_KEY` as a second secret; keep the AMD key out of source control. The app remains usable with a rule-based investigation fallback when the key is absent. This setup performs public-data download and model training at first start and may take several minutes.
+
 ## Reproduce the Model Trust Lab demo
 
 The main dashboard and the Model Trust Lab use different model evaluations. After downloading the UCI data and running `python -m factorymind.train` above, generate the blocked-review and simulated-gain artifacts locally:

@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from factorymind.core import ROOT, load_assets, predict_cycle, run_investigation
+from factorymind.bootstrap import ensure_assets
 from factorymind.data import SENSOR_INFO, TARGET_LABELS, read_cycle_samples
 from factorymind.reviews import save_review, list_reviews
 
@@ -18,6 +19,7 @@ h1 {letter-spacing:-1.5px} [data-testid="stSidebar"] {border-right:1px solid #29
 
 @st.cache_resource
 def assets():
+    ensure_assets(ROOT)
     return load_assets()
 
 @st.cache_data
