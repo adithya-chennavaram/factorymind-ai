@@ -1,16 +1,13 @@
 # FactoryMind AI — Model Trust Lab demonstration
 
-Run Streamlit and FastAPI using the README. Keep Ollama available for the live investigation. All demonstrations below use the retained random-split model and held-out cases.
+Reproduce the Trust Lab artifacts and configure Token Factory using the README. Use the Model Trust Lab page for this sequence:
 
-1. **Frame the problem:** “This prototype helps an operator move from a valve-condition prediction to an evidence-backed inspection review. These are public experimental rig recordings, not a live plant.”
-2. **Normal case:** choose “Held-out · optimal predictions”, cycle **4**. Reveal the annotation: predicted optimal, dataset label optimal. Explain that the score is uncalibrated.
-3. **Fault-class case:** choose “Held-out · non-optimal predictions”, cycle **213**. Predicted near failure, dataset label near failure. Show pressure and flow traces alongside optimal-label cycle 4. The reference differs in other rig conditions and is not an operating threshold. Do not claim a causal sensor signature.
-4. **Live AI:** click “Investigate selected cycle”. The result must say AI-assisted and name the configured model. Explain: “The LLM selects review focus and checks; the app validates its choices and inserts the actual measurements.” If it says fallback, say plainly that no AI output was used.
-5. **Human review:** enter “DEMO — no real inspection requested”, then click **Approve inspection review**. Show the stored review and real review timestamp. Click **Reject inspection review** to demonstrate the alternate path if useful. Neither controls equipment or creates an external work order.
-6. **Show an error:** choose “Held-out · model errors”, cycle **248**. The model predicts near failure, but the dataset label is optimal. “This error demonstrates why a model output cannot authorize maintenance or be treated as ground truth.”
-7. **Show evaluation:** random holdout accuracy 98.01%; blocked accuracy 82.86%. Show both confusion matrices and note blocked small-lag recall of 48.89%. Explain neighboring-cycle correlation and lack of independent-plant validation.
-8. **AMD statement:** “Local Ollama integration is verified. The same investigation interface is prepared for a secure AMD ROCm vLLM server, but AMD execution is pending approved access.” Replace this only after collecting genuine server and product evidence.
+1. Show random holdout accuracy of 98.01% alongside blocked validation accuracy of 82.86%. Explain that neither establishes factory performance.
+2. Show 260 false-green predictions among 1,344 predicted-green cycles. At the 20% per-fold review budget, confidence-only ranking catches 136 using 266 reviews.
+3. Inspect cycle 2053: predicted Optimal, 88.6% uncalibrated score, 0/50 class switches under hypothetical sensor-gain scenarios. Reveal Small lag: stable can still be wrong.
+4. Inspect cycle 507: predicted Optimal, 41.6% score, 26/50 hypothetical class switches. These are simulated gain changes, not observed equipment failures.
+5. Run the AMD evidence hearing only with authorized quota. Show the actual returned model and accepted bounded recommendations. A failed request must not be described as AMD-generated output.
+6. Explicitly approve an inspection review, show the recorded decision, and export the checksum-bearing Decision Passport. No equipment is controlled.
+7. Reveal the held-out Small lag label after the decision; it was excluded from the hearing evidence. Close with the limits of retrospective experimental validation.
 
-Suggested pitch outline: operator problem → recorded sensor evidence → human decision workflow → honest evaluation including an error → demonstrated inference provenance → next validation milestone. Do not present a contest score or claim prize eligibility.
-
-Business impact remains a hypothesis. A future study should compare the same qualified reviewers with and without the tool using matched cases, recording review time, decision quality, false positives and missed conditions. Randomize order to reduce learning effects. Only calculate potential labor savings from measured time differences and an explicitly sourced cost assumption. Do not infer downtime savings from classifier accuracy.
+The published recording demonstrates this sequence. It is available in the [submission release](https://github.com/adithya-chennavaram/factorymind-ai/releases/tag/act-iii-submission). Prospective safety, downtime prevention and cost savings remain unverified.

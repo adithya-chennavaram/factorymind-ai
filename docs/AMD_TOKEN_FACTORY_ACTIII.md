@@ -17,13 +17,12 @@ This uses the official ACT III team's **shared managed model API**. It does **no
 Open a fresh **Mac Terminal** window and run:
 
 ```bash
-cd ~/Downloads/factorymind-ai
+cd factorymind-ai
 source .venv/bin/activate
 export LLM_PROVIDER=amd_tokenfactory
 export LLM_BASE_URL=https://developer.amd.com.cn/radeon/api/v1
 export LLM_MODEL=DeepSeek-V4-Flash
 export LLM_TIMEOUT_SECONDS=60
-export LLM_DISABLE_THINKING=0
 export LLM_MAX_TOKENS=300
 export LLM_TEMPERATURE=0
 read -s LLM_API_KEY

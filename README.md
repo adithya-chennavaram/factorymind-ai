@@ -1,8 +1,8 @@
 # FactoryMind AI — Model Trust Lab
 
-FactoryMind AI — Model Trust Lab audits industrial model predictions before an operator relies on an “all clear.” It combines blocked-validation analysis, false-green review, hypothetical sensor-gain stress tests, an AMD Token Factory evidence hearing, and a human-approved Decision Passport. The local prototype uses recorded UCI hydraulic test-rig cycles; it does not control equipment or claim real-factory safety. The main investigation dashboard also supports local Ollama.
+FactoryMind AI — Model Trust Lab audits industrial model predictions before an operator relies on an “all clear.” It combines blocked-validation analysis, false-green review, hypothetical sensor-gain stress tests, an AMD Token Factory evidence hearing, and a human-approved Decision Passport. The local prototype uses recorded UCI hydraulic test-rig cycles; it does not control equipment or claim real-factory safety.
 
-**Verified locally:** UCI data, classifier evaluation, FastAPI, Streamlit, Ollama and SQLite review flow. The recorded October 13 demo also exercised AMD Token Factory (`self-dploy/DeepSeek-V4-Flash`), bounded evidence selection and inspection approval #3. The narrated demo was completed October 17. This is managed-service inference evidence, not independent attestation of the underlying GPU. The project is independent of other projects; confirm event eligibility and AI-assistance disclosure with organizers.
+**Verified locally:** UCI data, classifier evaluation, FastAPI, Streamlit and SQLite review flow. The recorded October 13 demo also exercised AMD Token Factory (`self-dploy/DeepSeek-V4-Flash`), bounded evidence selection and inspection approval #3. The narrated demo was completed October 17. This is managed-service inference evidence, not independent attestation of the underlying GPU. The project is independent of other projects; confirm event eligibility and AI-assistance disclosure with organizers.
 
 ## Hackathon demonstration
 
@@ -39,31 +39,17 @@ uvicorn factorymind.api:app --host 127.0.0.1 --port 8001
 
 Open [API documentation](http://127.0.0.1:8001/docs). Both services are local development applications. Keep them bound to loopback; authentication, authorization and production audit protection are not implemented. Restart both after retraining or changing provider environment variables, because model resources are cached.
 
-## Local AI investigation
+## AMD Token Factory investigation
 
-Ollama and `llama3.2` were already installed on this Mac and successfully exercised. On a fresh machine, install Ollama from its official distribution, then:
+The application uses the ACT III managed AMD Token Factory API. Follow the [secure configuration guide](docs/AMD_TOKEN_FACTORY_ACTIII.md) to export your private key and launch the app in the same terminal. `.env.example` documents supported variables; it is not automatically loaded. No GPU instance or container is required.
 
-```bash
-ollama pull llama3.2
-ollama serve  # only if the service is not already running
-```
-
-Default provider settings are `LLM_PROVIDER=ollama`, `LLM_BASE_URL=http://localhost:11434/v1`, `LLM_MODEL=llama3.2`, `LLM_API_KEY=ollama`, and `LLM_TIMEOUT_SECONDS=60`. Generation settings are `LLM_TEMPERATURE=0`, `LLM_MAX_TOKENS=300`, and `LLM_TOP_P=1`; validated ranges are 0–2, 64–1024 and (0,1] respectively. Settings are read from the process environment; `.env.example` is a reference and is not automatically loaded.
-
-The LLM selects sensor observations and safe review checks in a strict JSON schema. The application rejects unknown sensors, extra claims, unsafe actions, contradictory interpretations, malformed output and truncated responses. Rendered measurements come from the recorded case, and the dataset label is excluded from the LLM prompt. This is **bounded AI selection with factual template rendering**, not free-form causal diagnosis or validated feature attribution. Errors and timeouts produce a clearly labeled rule-based fallback.
+Without a valid key, predictions and sensor charts still work. Investigation returns a clearly labeled **rule-based fallback**, never an AMD-generated answer. The LLM selects observations and safe review checks from a bounded catalog; unknown sensors, unsupported claims, malformed output and mismatched models are rejected. Dataset labels are excluded from prompts, and human approval is always explicit.
 
 ```bash
-python scripts/probe_llm.py
-python scripts/smoke_api.py
+python scripts/probe_llm.py --cycle 213
 ```
 
-The probe saves authenticated health/model checks and a real investigation to `artifacts/provider_probe.json`. `--require-amd-evidence` fails on a local Ollama connection and on missing/stale remote hardware evidence. The API smoke test requires the API to be running and adds clearly marked **automated test** approval/rejection records to the local audit. It writes `artifacts/local_smoke.json`.
-
-## AMD Token Factory — managed inference
-
-The ACT III organizer-issued team manual specifies the AMD-managed API base URL `https://developer.amd.com.cn/radeon/api/v1` (distinct from the `/tokenfactory` sign-in website). The owner has obtained a team key. A dedicated `amd_tokenfactory` provider supports the documented OpenAI-compatible chat, selected model ID, JSON output, a lightweight authenticated `/models` health check, secret-safe error handling and honest provider attribution. New mocked tests pass. This is a **managed model service**, not a self-hosted MI300X instance. A genuine Token Factory request and accepted bounded response were captured in the local demo. The API key remains private; no cloud instance was provisioned.
-
-See **[AMD Token Factory ACT III quickstart](docs/AMD_TOKEN_FACTORY_ACTIII.md)**. Historical `amd_vllm`/ROCm instructions are preserved for reference only, not required for this main-track project. The optional Green-Light Audit baseline is described in [docs/GREEN_LIGHT_BASELINE.md](docs/GREEN_LIGHT_BASELINE.md) and requires regenerating blocked predictions to add out-of-fold probabilities.
+This command performs authenticated model discovery and one real investigation using team quota. Local probe outputs remain ignored. [Benchmark instructions](docs/BENCHMARKS.md) describe optional measured inference runs; no new inference benchmark was run during cleanup.
 
 ## Reproduce the Model Trust Lab demo
 
@@ -99,15 +85,15 @@ The database is a local demonstration log, not a tamper-evident or authenticated
 
 - [Demo script](docs/DEMO_SCRIPT.md)
 - [Judging evidence and blockers](docs/JUDGING_EVIDENCE.md)
-- [AMD ROCm / vLLM runbook](docs/AMD_RUNBOOK.md)
+- [AMD Token Factory setup](docs/AMD_TOKEN_FACTORY_ACTIII.md)
 
 ## API
 
-`GET /provider/health` separately checks live provider health, model availability and (for AMD vLLM) rejection of missing/incorrect keys. `GET /health` reports model readiness and dataset count; missing assets return 503. `GET /cycles?limit=20&offset=0` paginates cycle IDs. `GET /predict/{cycle_id}` returns prediction, factual evidence, annotation and latency. `GET /sensors/{cycle_id}/{sensor}` returns a trace with units, time axis and explicit display stride. `POST /investigate` accepts `{"cycle_id":213}`. `POST /reviews` accepts `{"cycle_id":213,"decision":"approve_inspection","notes":"Operator note"}` or `reject_inspection`. `GET /reviews/{cycle_id}` reads recent local decisions.
+`GET /provider/health` separately checks live provider health, model availability. `GET /health` reports model readiness and dataset count; missing assets return 503. `GET /cycles?limit=20&offset=0` paginates cycle IDs. `GET /predict/{cycle_id}` returns prediction, factual evidence, annotation and latency. `GET /sensors/{cycle_id}/{sensor}` returns a trace with units, time axis and explicit display stride. `POST /investigate` accepts `{"cycle_id":213}`. `POST /reviews` accepts `{"cycle_id":213,"decision":"approve_inspection","notes":"Operator note"}` or `reject_inspection`. `GET /reviews/{cycle_id}` reads recent local decisions.
 
 ## Tests and reproducibility
 
-Latest local suite run, October 17, 2026: **113 tests passed**, with one upstream Starlette/httpx deprecation warning. Run `python -m pytest -q` to reproduce.
+Latest local suite run, October 17, 2026: **102 tests passed**, with one upstream Starlette/httpx deprecation warning. Legacy host-deployment tests were removed with that unused feature; active provider, grounding, approval and UI tests remain. Run `python -m pytest -q` to reproduce.
 
 `pytest -q` covers extraction/label alignment, malformed data, split leakage/purge, prediction, API validation/readiness, provider timeouts, bounded response validation, SQLite decisions and the Streamlit form flow. Unit fixtures are synthetic and never reported as real evaluation. The UI integration test uses real local artifacts and skips on a fresh checkout until training completes. `requirements-lock.txt` pins the environment; `requirements.txt` lists allowed dependency ranges.
 
@@ -120,7 +106,3 @@ Data: Helwig, N., Pignanelli, E., & Schütze, A. (2015), *Condition monitoring o
 Project code uses the MIT license in `LICENSE`; the dataset and downloaded model weights have separate licenses. Review all third-party redistribution terms before publishing.
 
 The starter was generated with ChatGPT assistance. Codex expanded the implementation, installed dependencies, downloaded public data, trained/evaluated the model, and tested the local applications. Owner review and organizer confirmation of AI coding-assistance rules are pending. No AMD hardware use, contest score, eligibility, cost savings or deployment is claimed without evidence.
-
-### AMD ACT III Token Factory (managed API)
-
-The official ACT III team API is **not** the historical self-hosted vLLM deployment. See [`docs/AMD_TOKEN_FACTORY_ACTIII.md`](docs/AMD_TOKEN_FACTORY_ACTIII.md) for secure environment setup, model selection and the first live probe. The code now accepts `LLM_PROVIDER=amd_tokenfactory` with documented HTTPS API URL and a privately exported `rc-` team key; the recorded demo exercised this managed provider successfully.

@@ -6,15 +6,14 @@ import pytest
 from factorymind.core import predict_cycle, investigate, investigation_prompt
 
 @pytest.fixture(autouse=True)
-def ollama_environment_for_legacy_tests(monkeypatch):
-    """These fixtures simulate an Ollama response regardless of the user's shell."""
+def managed_provider_environment(monkeypatch):
+    """These fixtures simulate a managed API response regardless of the user's shell."""
     for key, value in {
-        "LLM_PROVIDER": "ollama",
-        "LLM_BASE_URL": "http://localhost:11434/v1",
-        "LLM_MODEL": "llama3.2",
-        "LLM_API_KEY": "ollama",
+        "LLM_PROVIDER": "amd_tokenfactory",
+        "LLM_BASE_URL": "https://developer.amd.com.cn/radeon/api/v1",
+        "LLM_MODEL": "DeepSeek-V4-Flash",
+        "LLM_API_KEY": "rc-" + "a" * 48,
         "LLM_TIMEOUT_SECONDS": "60",
-        "LLM_DISABLE_THINKING": "0",
         "LLM_MAX_TOKENS": "300",
         "LLM_TEMPERATURE": "0",
         "LLM_TOP_P": "1",
@@ -38,7 +37,7 @@ def fake_client(monkeypatch, content, finish="stop", exception=None):
         def create(self, **kwargs):
             captured.update(kwargs)
             if exception: raise exception
-            return SimpleNamespace(model="llama3.2", usage=SimpleNamespace(prompt_tokens=120, completion_tokens=30), choices=[SimpleNamespace(finish_reason=finish, message=SimpleNamespace(content=content))])
+            return SimpleNamespace(model="DeepSeek-V4-Flash", usage=SimpleNamespace(prompt_tokens=120, completion_tokens=30), choices=[SimpleNamespace(finish_reason=finish, message=SimpleNamespace(content=content))])
     monkeypatch.setattr(openai, "OpenAI", Client)
     return captured
 
@@ -96,7 +95,7 @@ def test_exact_factual_render_and_no_implicit_approval(case, monkeypatch):
     fake_client(monkeypatch, json.dumps(plan))
     from factorymind.core import run_investigation
     result = run_investigation(case)
-    assert result["served_by"] == "ollama"
+    assert result["served_by"] == "amd_tokenfactory"
     assert result["telemetry"]["generated_tokens"] == 30
     for sensor in plan["evidence_sensors"]:
         e = case["sensor_evidence"][sensor]
@@ -109,8 +108,8 @@ def test_exact_factual_render_and_no_implicit_approval(case, monkeypatch):
 def test_response_model_mismatch_rejected(case, monkeypatch):
     from factorymind.providers import ProviderConfig
     from factorymind.core import run_investigation
-    fake_client(monkeypatch, '{}')  # fake returns llama3.2, not configured vLLM deployment alias
-    config = ProviderConfig("amd_vllm", "http://localhost:8000/v1", "factorymind-test", "private-test-key-123456")
+    fake_client(monkeypatch, '{}')  # fake returns DeepSeek-V4-Flash, not the configured model
+    config = ProviderConfig("amd_tokenfactory", "https://developer.amd.com.cn/radeon/api/v1", "other-model", "rc-" + "a" * 48)
     result = run_investigation(case, config=config)
     assert result["failure"] == "model_mismatch"
     assert result["served_by"] == "rule_based"
@@ -121,6 +120,6 @@ def test_generation_settings_reach_client(case, monkeypatch):
     from factorymind.providers import ProviderConfig
     content = json.dumps({'evidence_sensors': ['PS1'], 'interpretation': 'insufficient_evidence', 'human_checks': ['verify_prediction']})
     captured = fake_client(monkeypatch, content)
-    config = ProviderConfig('ollama', 'http://localhost:11434/v1', 'llama3.2', 'ollama', temperature=.2, max_tokens=400, top_p=.9)
+    config = ProviderConfig('amd_tokenfactory', 'https://developer.amd.com.cn/radeon/api/v1', 'DeepSeek-V4-Flash', 'rc-' + 'a' * 48, temperature=.2, max_tokens=400, top_p=.9)
     investigate(case, config=config)
     assert (captured['temperature'], captured['max_tokens'], captured['top_p']) == (.2, 400, .9)

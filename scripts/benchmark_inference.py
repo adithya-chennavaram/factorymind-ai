@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from factorymind.benchmark import run_benchmark, compare_runs, attach_gpu_telemetry
+from factorymind.benchmark import run_benchmark, compare_runs
 from factorymind.core import load_assets
 from factorymind.providers import ProviderConfig
 
@@ -15,14 +15,9 @@ def main():
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--warmups", type=int, default=1)
     parser.add_argument("--compare", nargs=2, type=Path)
-    parser.add_argument("--attach-gpu-telemetry", nargs=2, type=Path, metavar=("RUN", "TELEMETRY"))
     args = parser.parse_args()
-    if args.compare and args.attach_gpu_telemetry:
-        parser.error("Choose comparison or telemetry attachment")
     try:
-        if args.attach_gpu_telemetry:
-            result = attach_gpu_telemetry(*(json.loads(p.read_text()) for p in args.attach_gpu_telemetry))
-        elif args.compare:
+        if args.compare:
             result = compare_runs(*(json.loads(p.read_text()) for p in args.compare))
         else:
             result = run_benchmark(ProviderConfig.from_env(), load_assets(), repeats=args.repeats, warmups=args.warmups)

@@ -4,6 +4,8 @@ from factorymind import api, core
 
 @pytest.fixture
 def client(monkeypatch, trained, tmp_path):
+    monkeypatch.setenv("LLM_PROVIDER", "amd_tokenfactory")
+    monkeypatch.setenv("LLM_API_KEY", "rc-" + "a" * 48)
     monkeypatch.setattr(api, "assets", lambda: trained)
     monkeypatch.setattr(api, "REVIEW_PATH", tmp_path / "reviews.sqlite3")
     return TestClient(api.app)

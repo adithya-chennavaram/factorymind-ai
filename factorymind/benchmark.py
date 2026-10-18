@@ -6,7 +6,6 @@ import json
 import platform
 from pathlib import Path
 from statistics import median
-import subprocess
 from time import perf_counter
 import uuid
 import numpy as np
@@ -19,15 +18,6 @@ CASES = [4, 213, 222, 232, 248, 496]
 def local_device_inventory():
     result = {"client_os": platform.system(), "client_arch": platform.machine(), "local_gpus": None,
               "note": "Device inventory is not per-request execution proof; client hardware is not remote server hardware."}
-    if platform.system() == "Darwin":
-        try:
-            proc = subprocess.run(["system_profiler", "SPDisplaysDataType", "-json"], capture_output=True, text=True, timeout=10, check=True)
-            data = json.loads(proc.stdout)
-            result["local_gpus"] = [{"name": d.get("sppci_model"), "cores": d.get("sppci_cores"),
-                                      "vram_gib": None, "memory_type": "not_measured"}
-                                     for d in data.get("SPDisplaysDataType", [])]
-        except (OSError, ValueError, subprocess.SubprocessError):
-            pass
     return result
 
 
@@ -67,10 +57,6 @@ def run_benchmark(config, assets, *, cycles=CASES, repeats=3, warmups=1):
               "gpu_memory": {"status": "not_measured", "samples": [], "peak_sampled_used_bytes": None},
               "warmup_records": [], "records": [], "status": "preflight_failed"}
     if not health["ready"]:
-        result["summary"] = summarize([])
-        return result
-    if config.provider == "amd_vllm" and health["hardware"]["status"] != "operator_evidence_matched":
-        result["status"] = "hardware_evidence_required"
         result["summary"] = summarize([])
         return result
     def invoke(cycle, phase, repeat):
@@ -124,31 +110,3 @@ def evaluate_quality(result):
             "equipment_control_absent": result.get("equipment_control") is False,
             "expert_usefulness_review": "pending",
             "scope": "Mechanical grounding/approval checks do not establish causal diagnosis or maintenance usefulness."}
-
-
-def attach_gpu_telemetry(run, telemetry):
-    """Attach actual overlapping host samples; reject mismatched/stale evidence."""
-    hardware = run["connection"]["hardware"].get("gpu_details")
-    if run["provider"]["requested_provider"] != "amd_vllm" or not hardware:
-        raise ValueError("Only an actual AMD-profile run with hardware evidence can receive GPU telemetry")
-    if telemetry.get("deployment_id") != hardware["deployment_id"] or telemetry.get("schema_version") != 1:
-        raise ValueError("GPU telemetry deployment mismatch")
-    records = run["records"]
-    start = min(datetime.fromisoformat(r["started_at_utc"]) for r in records)
-    end = max(datetime.fromisoformat(r["recorded_at_utc"]) for r in records)
-    samples = [s for s in telemetry["samples"] if start <= datetime.fromisoformat(s["recorded_at_utc"]) <= end]
-    measured = []
-    for sample in samples:
-        rows = sample.get("vram", [])
-        if len(rows) != 1:
-            continue
-        row = rows[0]
-        used, total = row.get("used_bytes"), row.get("total_bytes")
-        if isinstance(used, int) and isinstance(total, int) and 0 <= used <= total and total > 0:
-            measured.append(used)
-    if not measured:
-        raise ValueError("No overlapping single-GPU byte measurements; verify clocks and sysfs availability")
-    run["gpu_memory"] = {"status": "operator_samples_matched", "samples": samples,
-        "peak_sampled_used_bytes": max(measured), "minimum_sampled_used_bytes": min(measured),
-        "note": "Host-wide sampled usage, not per-request allocation or exact peak. Operator must verify clocks and mapping. No cryptographic attestation."}
-    return run

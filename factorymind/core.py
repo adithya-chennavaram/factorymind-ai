@@ -99,14 +99,11 @@ def render_plan(plan: InvestigationPlan, case: dict) -> str:
 def investigate(case: dict, *, config=None, telemetry=None) -> str:
     config = config or ProviderConfig.from_env()
     telemetry = telemetry if telemetry is not None else {}
-    options = {}
-    if config.disable_thinking:
-        options["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
     start = perf_counter()
     with config.client() as client:
         completion = client.chat.completions.create(model=config.model,
             messages=investigation_prompt(case), temperature=config.temperature, max_tokens=config.max_tokens, top_p=config.top_p,
-            response_format={"type": "json_object"}, **options)
+            response_format={"type": "json_object"})
     telemetry["provider_latency_ms"] = round((perf_counter() - start) * 1000, 3)
     usage = getattr(completion, "usage", None)
     for field, name in [("prompt_tokens", "prompt_tokens"), ("completion_tokens", "generated_tokens")]:
@@ -147,16 +144,13 @@ def run_investigation(case: dict, *, config=None) -> dict:
     except Exception as exc:
         text, mode, failure = safe_fallback(case, exc), "fallback", error_category(exc)
     elapsed = (perf_counter() - start) * 1000
-    served_by = ({"ollama": "ollama", "amd_vllm": "vllm", "amd_tokenfactory": "amd_tokenfactory"}[config.provider]) if mode == "llm" else "rule_based"
+    served_by = config.provider if mode == "llm" else "rule_based"
     # A fallback never inherits the attempted server's hardware attribution.
     hardware = hardware_status(config, telemetry["response_model"]) if mode == "llm" else {
         "status": "not_applicable", "hardware_verified": False, "gpu_details": None,
         "note": "Rule-based fallback; no AI output used."}
-    label = {"ollama": "Local Ollama", "vllm": "vLLM · GPU unverified",
-             "amd_tokenfactory": "AMD Token Factory · AMD-hosted API (documented)",
+    label = {"amd_tokenfactory": "AMD Token Factory · AMD-hosted API (documented)",
              "rule_based": "Rule-based fallback"}[served_by]
-    if served_by == "vllm" and hardware["status"] == "operator_evidence_matched":
-        label = "vLLM · matching operator AMD evidence"
     tokens = telemetry["generated_tokens"]
     return {"case": case, "investigation": text, "provider_mode": mode, "served_by": served_by,
             "provider_label": label, "attempted_provider": config.public() if config else {"status": "invalid_configuration"},

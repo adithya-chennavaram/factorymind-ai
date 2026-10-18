@@ -24,7 +24,7 @@ def test_documented_managed_profile_and_no_key_leak():
     assert providers.hardware_status(c)["status"] == "managed_amd_api_documented"
 
 
-@pytest.mark.parametrize("bad", ["", "ollama", "rc-abcdef", "rc-" + "g"*48])
+@pytest.mark.parametrize("bad", ["", "untrusted_provider", "rc-abcdef", "rc-" + "g"*48])
 def test_reject_bad_amd_team_keys(bad):
     with pytest.raises(ProviderConfigError):
         ProviderConfig("amd_tokenfactory", API_URL, "DeepSeek-V4-Flash", bad)
@@ -190,3 +190,29 @@ def test_observed_amd_managed_gateway_alias_end_to_end(trained, monkeypatch):
     assert report["telemetry"]["finish_reason"] == "stop"
     assert report["telemetry"]["generated_tokens"] == 58
     assert TEST_KEY not in json.dumps(report)
+
+
+def test_managed_provider_is_default(monkeypatch):
+    for name in ('LLM_PROVIDER', 'LLM_BASE_URL', 'LLM_MODEL'):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv('LLM_API_KEY', TEST_KEY)
+    c = ProviderConfig.from_env()
+    assert c.provider == 'amd_tokenfactory' and c.base_url == API_URL
+
+
+def test_missing_key_uses_offline_fallback_without_network(trained, monkeypatch):
+    monkeypatch.delenv('LLM_API_KEY', raising=False)
+    monkeypatch.delenv('LLM_PROVIDER', raising=False)
+    def forbidden(*args, **kwargs):
+        pytest.fail('No network client may be opened without a valid key')
+    monkeypatch.setattr(ProviderConfig, 'client', forbidden)
+    report = core.run_investigation(core.predict_cycle(*trained, 1))
+    assert report['served_by'] == 'rule_based'
+    assert report['failure'] == 'configuration'
+    assert report['requires_human_approval'] and not report['equipment_control']
+    assert report['hardware']['hardware_verified'] is False
+
+
+def test_unknown_provider_is_rejected():
+    with pytest.raises(ProviderConfigError):
+        ProviderConfig('unsupported_provider', API_URL, 'DeepSeek-V4-Flash', TEST_KEY)

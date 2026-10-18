@@ -94,7 +94,7 @@ def test_bad_review_or_unvalidated_hearing(tmp_path):
     with pytest.raises(ValueError):
         trust_evidence_packet(record, {1}, 25, fake_report(), scores_file_sha256='d'*64)
     with pytest.raises(ValueError):
-        trust_evidence_packet(record, {1}, 20, {'provider': 'ollama'}, scores_file_sha256='d'*64)
+        trust_evidence_packet(record, {1}, 20, {'provider': 'untrusted_provider'}, scores_file_sha256='d'*64)
     packet = trust_evidence_packet(record, {1}, 20, fake_report(), scores_file_sha256='d'*64)
     with pytest.raises(ValueError):
         save_trust_review(1, 1, 'start_machine', '', packet, tmp_path/'reviews.sqlite3')
