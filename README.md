@@ -10,14 +10,16 @@ FactoryMind AI — Model Trust Lab audits industrial model predictions before an
 
 ## Try the Live Demo
 
-Open the [hosted Streamlit application](https://factorymind-ai-eht5zkagrajhz6m7dza5kv.streamlit.app/). Select **Model Trust Lab** in the sidebar. The code supports anonymous judge use, but the latest read-only check of this URL redirected to Streamlit authentication; confirm the app's sharing setting before distributing the link. The hosted instance initializes public UCI data and ignored model/evaluation artifacts on first start. If AMD quota is unavailable, the prediction, charts, audit metrics and rule-based review remain usable.
+Open the [public Streamlit application](https://factorymind-ai-eht5zkagrajhz6m7dza5kv.streamlit.app/). Select **Model Trust Lab** in the sidebar. The owner verified anonymous access in an incognito browser. The hosted instance initializes public UCI data and ignored model/evaluation artifacts on first start. If AMD quota is unavailable, the prediction, charts, audit metrics and rule-based review remain usable.
 
 - [Watch/download the narrated demo (2:55)](https://github.com/adithya-chennavaram/factorymind-ai/releases/download/act-iii-submission/FactoryMind_ACTIII_demo.mp4)
 - [Pitch slides (PDF)](https://github.com/adithya-chennavaram/factorymind-ai/releases/download/act-iii-submission/FactoryMind_ACTIII_Pitch.pdf) · [Editable PowerPoint](https://github.com/adithya-chennavaram/factorymind-ai/releases/download/act-iii-submission/FactoryMind_ACTIII_Pitch.pptx)
 - [Submission cover](https://github.com/adithya-chennavaram/factorymind-ai/releases/download/act-iii-submission/FactoryMind_Cover.png)
-- [AMD ACT III submission page](https://lablab.ai/ai-hackathons/amd-developer-hackathon-act-iii/fcksociety/factorymind-ai)
+- [AMD ACT III submission page](https://lablab.ai/ai-hackathons/amd-developer-hackathon-act-iii/factorymind-ai/factorymind-ai-model-trust-lab)
 
 The recording shows blocked-validation errors, simulated sensor-gain checks, an AMD evidence hearing, and a human-approved Decision Passport. Release assets contain the final presentation and demo, while raw data, trained models, credentials and local audit databases remain excluded. The live application uses a private Streamlit secret for managed AMD requests; never put that key in source control or a client-side URL.
+
+The source repository is public. Runtime credentials, datasets, model artifacts and local databases are excluded from Git.
 
 ## Run locally
 
@@ -28,7 +30,7 @@ cd factorymind-ai
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements-lock.txt
-python scripts/download_data.py
+python -m scripts.download_data
 python -m factorymind.train
 pytest -q
 streamlit run app.py
@@ -51,7 +53,7 @@ The application uses the ACT III managed AMD Token Factory API. Follow the [secu
 Without a valid key, predictions and sensor charts still work. Investigation returns a clearly labeled **rule-based fallback**, never an AMD-generated answer. The LLM selects observations and safe review checks from a bounded catalog; unknown sensors, unsupported claims, malformed output and mismatched models are rejected. Dataset labels are excluded from prompts, and human approval is always explicit.
 
 ```bash
-python scripts/probe_llm.py --cycle 213
+python -m scripts.probe_llm --cycle 213
 ```
 
 This command performs authenticated model discovery and one real investigation using team quota. Local probe outputs remain ignored. [Benchmark instructions](docs/BENCHMARKS.md) describe optional measured inference runs; no new inference benchmark was run during cleanup.

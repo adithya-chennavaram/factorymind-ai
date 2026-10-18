@@ -1,6 +1,6 @@
 # Blocked-validation error analysis
 
-Computed by `python scripts/analyze_errors.py` from retained out-of-fold predictions and original profile rows. This analysis does not refit the model or use annotations as predictors.
+Computed by `python -m scripts.analyze_errors` from retained out-of-fold predictions and original profile rows. This analysis does not refit the model or use annotations as predictors.
 
 There are **378 errors out of 2205 cycles**. Of these, **260 (68.78%) are non-optimal labels predicted optimal**. Another 41 are optimal labels predicted non-optimal; 77 confuse one non-optimal class with another.
 

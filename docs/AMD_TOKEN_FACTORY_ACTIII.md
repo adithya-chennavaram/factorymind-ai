@@ -35,7 +35,7 @@ When `read -s` waits for input, paste the private team key and press Return. Not
 ## First test (does use one hosted model request)
 
 ```bash
-python scripts/probe_llm.py --cycle 213
+python -m scripts.probe_llm --cycle 213
 ```
 
 Inspect its stdout for `ready: true`, `investigation_passed: true` and open `artifacts/provider_probe.json` to confirm `served_by: amd_tokenfactory` and the actual returned model. Do not publish that probe until it is reviewed and sanitized. The model inventory preflight uses only `GET /models`, with no invalid-key probes or self-hosted `/health` call.

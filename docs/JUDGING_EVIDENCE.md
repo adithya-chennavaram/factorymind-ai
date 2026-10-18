@@ -7,4 +7,4 @@
 - **Human control:** no actuator commands, automatic approval or external work orders. Ground-truth reveal follows the recorded decision.
 - **Release:** [public source](https://github.com/adithya-chennavaram/factorymind-ai) and [video, pitch, cover and subtitles](https://github.com/adithya-chennavaram/factorymind-ai/releases/tag/act-iii-submission).
 
-There is no hosted interactive deployment. Actual hackathon submission and organizer confirmation of eligibility/AI-assistance rules remain the owner's responsibility. See README for the current test result, reproduction commands, dataset license and development disclosure.
+The [public Streamlit application](https://factorymind-ai-eht5zkagrajhz6m7dza5kv.streamlit.app/) is deployed and was verified by the owner in an incognito browser. The [submitted hackathon page](https://lablab.ai/ai-hackathons/amd-developer-hackathon-act-iii/factorymind-ai/factorymind-ai-model-trust-lab) is already submitted. See README for local reproduction commands, dataset license and development disclosure.

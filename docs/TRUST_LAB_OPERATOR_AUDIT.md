@@ -1,6 +1,6 @@
 # Model Trust Lab — operator approval and decision evidence
 
-This patch connects the existing **blocked out-of-fold Model Trust Lab** and live AMD Token Factory Evidence Hearing to a local, human-only decision workflow.
+The committed **blocked out-of-fold Model Trust Lab** and AMD Token Factory Evidence Hearing provide a local, human-only decision workflow.
 
 ## What changes
 
@@ -11,11 +11,7 @@ This patch connects the existing **blocked out-of-fold Model Trust Lab** and liv
 - Review history is visible on the same page; select a decision to inspect/download its JSON evidence passport. The stored evidence checksum detects accidental edits to the JSON but **is not proof of immutability**, nor certification of the underlying dataset or model.
 - The main dashboard footer now reflects the available AMD API integration rather than saying it is pending.
 
-## Apply safely
-
-Unzip this patch over the project root. It adds a new `factorymind/trust_audit.py` module, a new test file, and updates the Model Trust Lab page and helper. No destructive database migration is performed and **no dataset, secrets, model weights or existing review data are included**.
-
-## Test locally
+## Run locally
 
 ```bash
 cd ~/Downloads/factorymind-ai
@@ -36,3 +32,4 @@ python -m streamlit run app.py --server.port 8502
 - Stress-test simulated gains are not certified sensor-noise distributions, and model stability does not mean correctness.
 - The current confidence-only review policy is supported by retrospective blocked out-of-fold measurements; results do **not** prove future deployment benefit.
 - AMD Token Factory inference is only used when a user clicks the hearing button and the provider is configured. Do not publish API credentials.
+- SQLite is a local audit store. Its evidence checksum detects changes to the stored JSON but does not make the database immutable or tamper-proof.

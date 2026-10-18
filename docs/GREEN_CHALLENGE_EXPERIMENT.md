@@ -36,7 +36,7 @@ The 0.5 weight is a **prespecified exploratory hypothesis**. Do not tune it usin
 cd ~/Downloads/factorymind-ai
 source .venv/bin/activate
 python -m pytest -q tests/test_stress.py
-python scripts/evaluate_green_challenge.py
+python -m scripts.evaluate_green_challenge
 ```
 
 The complete evaluation may take time because it refits five random forests and predicts across 50 scenarios per green test cycle. It does not call AMD, does not use API key/quota, and does not change the deployed model artifact.

@@ -12,7 +12,7 @@ FactoryMind AI is a local Streamlit/FastAPI research prototype for testing wheth
 
 The application does not control equipment, create work orders, establish physical causes, or claim real-factory performance. The LLM only selects evidence and review checks from a strict schema. All numerical observations and displayed results are rendered from local validated data. A failed or unavailable provider produces a clearly labeled rule-based fallback and is never represented as AMD-generated output.
 
-The current local suite is **102 passed, 1 upstream Starlette/httpx deprecation warning**. The latest local artifacts contain 2,205 cycles and 30 features. Random holdout accuracy is 98.01%; pooled five-fold blocked accuracy is 82.86%. The recorded AMD Token Factory probe authenticated, discovered the configured model, and completed one bounded investigation; it did not independently attest GPU model, VRAM, or ROCm details.
+The current local suite is **106 passed, 1 upstream Starlette/httpx deprecation warning**. The latest local artifacts contain 2,205 cycles and 30 features. Random holdout accuracy is 98.01%; pooled five-fold blocked accuracy is 82.86%. The recorded AMD Token Factory probe authenticated, discovered the configured model, and completed one bounded investigation; it did not independently attest GPU model, VRAM, or ROCm details.
 
 The 2026-10-18 targeted improvement pass added hosted-safe Streamlit binding, serialized/idempotent bootstrap with clear failure handling, process/session/cooldown protection for public AMD requests, HTTP 429 messaging, a first-time judge walkthrough, and quota/bootstrap tests. The current suite is **106 passed, 1 upstream warning**.
 
@@ -189,7 +189,7 @@ Local startup requires Python 3.13-compatible dependencies from `requirements-lo
 cd /Users/adithyachennavaram/Downloads/factorymind-ai
 source .venv/bin/activate
 python -m pip install -r requirements-lock.txt
-python scripts/download_data.py
+python -m scripts.download_data
 python -m factorymind.train
 python -m scripts.evaluate_green_review
 python -m scripts.evaluate_green_challenge
@@ -202,7 +202,7 @@ Run the API separately:
 python -m uvicorn factorymind.api:app --host 127.0.0.1 --port 8001
 ```
 
-The hosted Streamlit deployment is `https://factorymind-ai-eht5zkagrajhz6m7dza5kv.streamlit.app/`, with the Model Trust Lab at `/Model_Trust_Lab`. It uses `FACTORYMIND_AUTO_SETUP=1` and a private Streamlit secret for AMD inference. A hosted page startup can regenerate ignored data/model/audit artifacts in ephemeral storage. A read-only HTTPS check on 2026-10-18 received a redirect into Streamlit authentication rather than an anonymous app page; the sharing setting must be confirmed before relying on the URL for judges. This is a deployment-access setting, not an application-code error.
+The public Streamlit deployment is `https://factorymind-ai-eht5zkagrajhz6m7dza5kv.streamlit.app/`, with the Model Trust Lab at `/Model_Trust_Lab`. It uses `FACTORYMIND_AUTO_SETUP=1` and a private Streamlit secret for AMD inference. A hosted page startup can regenerate ignored data/model/audit artifacts in ephemeral storage. The owner verified anonymous access in an incognito browser.
 
 Release assets, including the narrated demo, pitch PDF/PPTX and cover image, are attached to GitHub release tag `act-iii-submission`; they are intentionally excluded from the source repository. No local MP4, audio, raw dataset, trained model or SQLite database is tracked.
 
@@ -222,11 +222,11 @@ Release assets, including the narrated demo, pitch PDF/PPTX and cover image, are
 
 ## 13. Current project progress
 
-The implementation is complete for the submitted local/managed-service prototype. The public GitHub repository is private-source-safe and synchronized on `main`; the hackathon submission has already been made. The hosted app and recorded demo are available. No self-hosted ROCm/vLLM deployment was performed, and no further paid cloud provisioning is required for the submitted route.
+The implementation is complete for the submitted local/managed-service prototype. The public GitHub source repository is synchronized on `main`; runtime credentials, datasets, model artifacts and local databases are excluded. The hackathon submission has already been made. The hosted app and recorded demo are available. No self-hosted ROCm/vLLM deployment was performed, and no further paid cloud provisioning is required for the submitted route.
 
 ## 14. Exact next steps
 
-For demonstration only, keep the Streamlit deployment and AMD secret available, verify the live URL before a judge walkthrough, and use the bounded provider label and limitations in the narration. If development resumes after judging, first reconcile README hosted-deployment wording, then investigate calibration and independent-rig validation. Any new AMD benchmark should record the provider, returned model, latency, token counts and failure category without claiming hardware details that the service does not expose.
+For demonstration only, keep the Streamlit deployment and AMD secret available, verify the live URL before a judge walkthrough, and use the bounded provider label and limitations in the narration. If development resumes after judging, investigate calibration and independent-rig validation. Any new AMD benchmark should record the provider, returned model, latency, token counts and failure category without claiming hardware details that the service does not expose.
 
 ## 15. File and module reference
 
