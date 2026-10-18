@@ -4,6 +4,16 @@ FactoryMind AI — Model Trust Lab audits industrial model predictions before an
 
 **Verified locally:** UCI data, classifier evaluation, FastAPI, Streamlit, Ollama and SQLite review flow. The recorded October 13 demo also exercised AMD Token Factory (`self-dploy/DeepSeek-V4-Flash`), bounded evidence selection and inspection approval #3. The narrated demo was completed October 17. This is managed-service inference evidence, not independent attestation of the underlying GPU. The project is independent of other projects; confirm event eligibility and AI-assistance disclosure with organizers.
 
+## Hackathon demonstration
+
+**Submission title:** FactoryMind AI — Model Trust Lab · **Track:** Intelligent Industry
+
+- [Watch/download the narrated demo (2:55)](https://github.com/adithya-chennavaram/factorymind-ai/releases/download/act-iii-submission/FactoryMind_ACTIII_demo.mp4)
+- [Pitch slides (PDF)](https://github.com/adithya-chennavaram/factorymind-ai/releases/download/act-iii-submission/FactoryMind_ACTIII_Pitch.pdf) · [Editable PowerPoint](https://github.com/adithya-chennavaram/factorymind-ai/releases/download/act-iii-submission/FactoryMind_ACTIII_Pitch.pptx)
+- [Submission cover](https://github.com/adithya-chennavaram/factorymind-ai/releases/download/act-iii-submission/FactoryMind_Cover.png)
+
+The recording shows blocked-validation errors, simulated sensor-gain checks, an AMD evidence hearing, and a human-approved Decision Passport. Your own API key is required for live AMD inference. There is currently **no hosted interactive deployment**; reproduce the application locally with the commands below. Release assets contain the final presentation and demo, while raw data, trained models, credentials and local audit databases remain excluded.
+
 ## Run locally
 
 Tested on Apple Silicon with Python 3.13. The lock file captures this verified environment.
