@@ -60,7 +60,7 @@ with st.sidebar:
     st.caption("Local review audit only. No actuator connection.")
 
 case = predict_cycle(model, features, int(cycle_id))
-st.caption(f"VALVE CONDITION / CYCLE {cycle_id:04d} / {case['evaluation_split'].replace('_', ' ').upper()}")
+st.info(f"**VALVE CONDITION · CYCLE {cycle_id:04d} · {case['evaluation_split'].replace('_', ' ').upper()}**")
 st.title("From sensor evidence to human decision")
 st.write("A green machine-health prediction is not a guarantee. Inspect the evidence, investigate the bounded facts, and decide whether to request an inspection.")
 a, b, c = st.columns([2, 1, 1])
