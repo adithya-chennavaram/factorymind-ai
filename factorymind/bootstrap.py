@@ -15,6 +15,8 @@ def ensure_assets(root: Path) -> None:
         root / "data/processed/features.csv",
         root / "artifacts/valve_model.joblib",
         root / "artifacts/predictions.csv",
+        root / "artifacts/green_challenge_results.json",
+        root / "artifacts/green_challenge_scored.csv",
     )
     if all(path.is_file() for path in required):
         return
@@ -22,3 +24,4 @@ def ensure_assets(root: Path) -> None:
         return
     subprocess.run([sys.executable, "scripts/download_data.py"], cwd=root, check=True)
     subprocess.run([sys.executable, "-m", "factorymind.train"], cwd=root, check=True)
+    subprocess.run([sys.executable, "-m", "scripts.evaluate_green_challenge"], cwd=root, check=True)
