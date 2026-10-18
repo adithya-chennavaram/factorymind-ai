@@ -16,8 +16,10 @@ from factorymind.trust_lab import (
     request_amd_hearing, select_for_review, trust_evidence_packet,
 )
 from factorymind.trust_audit import save_trust_review, list_trust_reviews, get_trust_review
+from factorymind.bootstrap import ensure_assets
 
 ROOT = Path(__file__).resolve().parents[1]
+ensure_assets(ROOT)
 SCORES = ROOT / 'artifacts/green_challenge_scored.csv'
 METRICS = ROOT / 'artifacts/metrics.json'
 REVIEW_DB = os.getenv('FACTORYMIND_REVIEW_DB', str(ROOT / 'data/reviews.sqlite3'))
