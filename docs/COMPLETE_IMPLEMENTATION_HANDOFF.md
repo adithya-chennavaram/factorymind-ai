@@ -252,3 +252,4 @@ For demonstration only, keep the Streamlit deployment and AMD secret available, 
 - `docs/AMD_TOKEN_FACTORY_ACTIII.md` — private-key handling, endpoint and provider limitations.
 - `requirements-lock.txt` — reproducible dependency versions.
 - `.env.example` — configuration template; it contains no secret.
+- `docs/LOCAL_DEVELOPMENT.md` — detailed local installation, training, Streamlit, FastAPI, provider and test commands.

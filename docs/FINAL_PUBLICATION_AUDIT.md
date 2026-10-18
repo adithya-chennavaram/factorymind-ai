@@ -6,7 +6,7 @@ Audit commit before documentation corrections: `a9d93c16a68767ce9ca26b10a4bfad32
 
 ## Results
 
-The audit found **13 public consistency issues** and corrected all 13 in the repository or GitHub release description. No classifier, evaluation artifact, provider implementation, deployment secret or submitted media was changed. The current test suite remains **106 passed with one upstream Starlette/httpx deprecation warning**.
+The audit found **13 public consistency issues** and corrected all 13 in the repository or GitHub release description. This follow-up also moved detailed setup commands into `docs/LOCAL_DEVELOPMENT.md` to keep the README judge-first. No classifier, evaluation artifact, provider implementation, deployment secret or submitted media was changed. The current test suite remains **106 passed with one upstream Starlette/httpx deprecation warning**.
 
 | File or external resource | Old incorrect statement | New corrected statement | Reason and verification source | Status |
 |---|---|---|---|---|
